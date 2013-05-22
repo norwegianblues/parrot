@@ -1,0 +1,82 @@
+body {
+    background: #333;
+    color: #fff;
+    font: 300 100.1% "Helvetica Neue", Helvetica, "Arial Unicode MS", Arial, sans-serif;
+    text-align: center;
+}
+
+#heading {
+    padding-top: 20px;
+}
+
+#description, #nodes {
+    padding: 50px 100px 0 100px;
+    text-align: left;
+}
+
+#logo {
+    position: absolute;
+    right: 10px;
+    top: 12px;
+}
+
+#footer {
+    position: static;
+    left: 0;
+    bottom: 40px;
+    width: 100%;
+}
+
+#logger {
+ position: absolute;
+ right: 10px;
+ top: 200px;
+ width: 50%;
+}
+
+@-webkit-keyframes bounce1 {
+  from {
+    background-color: #df0;
+  }
+ 
+  to {
+    background-color: #fff;
+  }
+}
+
+@-webkit-keyframes bounce2 {
+  from {
+    background-color: #df0;
+  }
+ 
+  to {
+    background-color: #fff;
+  }
+}
+
+input.updated1 {
+  -webkit-animation-duration: 0.5s;
+  -webkit-animation-name: bounce1;
+}
+
+input.updated2 {
+  -webkit-animation-duration: 0.5s;
+  -webkit-animation-name: bounce2;
+}
+
+td, th {
+    padding: 0.2em;
+}
+
+td {
+    border: 1px solid #777;
+}
+
+th {
+    padding-top: 1em;
+    padding-bottom: 0.5em;
+}
+
+a {
+    color: #fff;
+}

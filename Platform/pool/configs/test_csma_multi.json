@@ -1,0 +1,95 @@
+{
+    "version":1,
+    "description":
+    "test_csma_multi: Test routing (actually, interface selection) for some basic socket connection scenarios.",
+    "nodes":{
+        "urn:hodcp:node:client1":{
+            "config":{},
+            "interfaces": {
+                "eth0": {
+                    "ip": "10.1.2.10",
+                    "network": "urn:backplane:subnet:csma_nw1"
+                },
+                "eth1": {
+                    "ip": "192.168.0.10",
+                    "network": "urn:backplane:subnet:csma_nw2"
+                },
+                "eth2": {
+                    "ip": "192.168.2.10",
+                    "network": "urn:backplane:subnet:csma_nw3"
+                }
+            },
+            "class": "http_client_sim"
+        },
+        "urn:hodcp:node:client2":{
+            "config":{},
+            "interfaces": {
+                "eth0": {
+                    "ip": "192.168.0.11",
+                    "network": "urn:backplane:subnet:csma_nw2"
+                },
+                "eth1": {
+                    "ip": "10.1.2.11",
+                    "network": "urn:backplane:subnet:csma_nw1"
+                },
+                "eth2": {
+                    "ip": "192.168.2.11",
+                    "network": "urn:backplane:subnet:csma_nw3"
+                }
+            },
+            "class": "http_client_sim"
+        },
+        "urn:hodcp:node:client3":{
+            "config":{},
+            "interfaces": {
+                "eth0": {
+                    "ip": "192.168.0.12",
+                    "network": "urn:backplane:subnet:csma_nw2"
+                },
+                "eth1": {
+                    "ip": "192.168.2.12",
+                    "network": "urn:backplane:subnet:csma_nw3"
+                },
+                "eth2": {
+                    "ip": "10.1.2.12",
+                    "network": "urn:backplane:subnet:csma_nw1"
+                }
+            },
+            "class": "http_client_sim"
+        },
+        "urn:hodcp:node:server":{
+            "config":{},
+            "interfaces": {
+                "eth0": {
+                    "ip": "10.1.2.2",
+                    "network": "urn:backplane:subnet:csma_nw1"
+                }
+            },
+            "class": "http_server_sim"
+        }
+    },
+    "networks": {
+        "urn:backplane:subnet:csma_nw1": {
+            "Delay": "2ms",
+            "IPv4Base": "10.1.2.0",
+            "type": "CSMA",
+            "IPv4Mask": "255.255.255.0",
+            "DataRate": "5Mbps"
+        },
+        "urn:backplane:subnet:csma_nw2": {
+            "Delay": "2ms",
+            "IPv4Base": "192.168.0.0",
+            "type": "CSMA",
+            "IPv4Mask": "255.255.255.0",
+            "DataRate": "5Mbps"
+        },
+        "urn:backplane:subnet:csma_nw3": {
+            "Delay": "2ms",
+            "IPv4Base": "192.168.2.0",
+            "type": "CSMA",
+            "IPv4Mask": "255.255.255.0",
+            "DataRate": "5Mbps"
+        }
+    }
+}
+

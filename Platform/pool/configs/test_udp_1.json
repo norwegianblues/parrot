@@ -1,0 +1,37 @@
+{
+    "version":1,
+    "description":
+    "test_udp_1: Test a UDP sockets.",
+    "nodes":{
+        "urn:hodcp:node:client":{
+            "config":{},
+            "interfaces": {
+                "eth0": {
+                    "ip": "10.1.2.1",
+                    "network": "urn:backplane:subnet:csma_nw"
+                }
+            },
+            "class": "udp_client"
+        },
+        "urn:hodcp:node:server":{
+            "config":{},
+            "interfaces": {
+                "eth0": {
+                    "ip": "10.1.2.2",
+                    "network": "urn:backplane:subnet:csma_nw"
+                }
+            },
+            "class": "udp_server"
+        }
+    },
+    "networks": {
+        "urn:backplane:subnet:csma_nw": {
+            "Delay": "2ms",
+            "IPv4Base": "10.1.2.0",
+            "type": "CSMA",
+            "IPv4Mask": "255.255.255.0",
+            "DataRate": "5Mbps"
+        }
+    }
+}
+

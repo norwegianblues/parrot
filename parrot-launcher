@@ -1,0 +1,153 @@
+#!/usr/bin/env bash
+
+########################################################################
+# Copyright (c) 2013 Ericsson AB
+# 
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Public License v1.0
+# which accompanies this distribution, and is available at
+# http://www.eclipse.org/legal/epl-v10.html
+# 
+# Contributors:
+#    Ericsson Research - initial implementation
+#
+########################################################################
+
+HODCP_ROOT="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+WORKDIR="$(pwd)"
+PYTHON=python
+
+function usage {
+	echo ""
+	echo "Usage: $(basename $0) [options] <config_file>"
+	echo "<config_file> path could be absolute or relative. A relative path to non-existing file"
+	echo "will also be tried against ${HODCP_ROOT}/Configs."
+	echo "Valid options are:"
+	echo " -b <module> Specify a non-default module responsible for the communication backplane."         
+	echo " -d          Debug mode. Increased verbosity. Will start in with PyDebugger (pdb) enabled."
+	echo "             Useful for checking import of nodes. Press CTRL-D to continue starting."
+	echo " -i          Set up environment and drop into interactive python shell."
+	echo " -h          Print this help text and exit"
+}
+
+function debug_echo {
+    if [ YES = "$debug" ]; then
+	echo 1>&2 $@
+    fi
+}
+
+#
+# Parse arguments
+#
+while getopts ":dhib:" opt; do
+    case $opt in
+	d) debug=YES ;;
+	i) devmode=YES ;;
+    b) backplane=$OPTARG ;;
+	h) usage $0 ; exit 0 ;;
+	\?) echo "Invalid option: -$OPTARG" >&2 ; usage $0 ; exit 1 ;;
+    esac
+done
+shift $(( OPTIND-1 ))
+
+if [ $# -lt 1 ]; then
+    echo "Error. No config file specified."
+    usage $0
+    exit 1
+fi
+
+#
+# Read user settings file(s)
+#
+
+if [ "$WORKDIR" != "$HODCP_ROOT" ] && [ -f $WORKDIR/settings ]; then
+    echo "Reading $WORKDIR/settings"
+    # cat $WORKDIR/settings
+    . $WORKDIR/settings
+else
+    debug_echo "No 'settings' file found in $WORKDIR"
+fi
+
+if [ -f $HODCP_ROOT/settings ]; then
+    echo "Reading settings in HODCP_ROOT ($HODCP_ROOT)"
+    # cat $HODCP_ROOT/settings
+    . $HODCP_ROOT/settings
+else
+    debug_echo "No 'settings' file found in HODCP_ROOT ($HODCP_ROOT)"
+fi
+
+#
+# Set up search paths for HODCP
+#
+# 1. Core settings
+PLATFORM=Platform
+
+# 2. WebServer settings
+WEB_ROOT=$HODCP_ROOT/Platform/web
+
+# 
+# Start weblink control
+# 
+# NB. This must be done before modifying PYTHONPATH 
+PORT=8000
+serving=`ps ax | grep "SimpleHTTPServer $PORT" | grep -v grep | wc -l | sed -e 's/^[ \t]*//'`
+if [ "$serving" -lt "1" ] ; then
+    (cd ${WEB_ROOT}; ${PYTHON} -m SimpleHTTPServer ${PORT} >/dev/null 2>&1 &)
+    echo "Starting SimpleHTTPServer on port $PORT"
+else
+    echo "Already have SimpleHTTPServer on port $PORT"
+fi
+
+# All settings
+CORE_PYPATH=\
+$HODCP_ROOT/$PLATFORM/core:\
+$HODCP_ROOT/$PLATFORM/pool/nodes:\
+$HODCP_ROOT/$PLATFORM/pool/sim
+
+# ENV VARS to export
+PYTHONPATH=\
+$EXTRA_PYTHONPATH:\
+$GLOBAL_PYTHONPATH:\
+$CORE_PYPATH:\
+$PYTHONPATH
+export PYTHONPATH
+
+if [ "" != "$backplane" ]; then
+export BACKPLANE=$backplane
+fi
+
+#
+# Be explicit about the environment
+#
+echo ""
+echo "Starting HODCP platform ..."
+echo "HODCP_ROOT is: $HODCP_ROOT"
+echo "WORKDIR is: $WORKDIR"
+echo "Python is    : $(which $PYTHON)"
+echo "Python dirs  : $PYTHONPATH"
+if [ "" != "$backplane" ]; then
+echo "Backplane    : $backplane"
+else
+echo "Backplane    : Default"
+fi
+echo "Config file : $@"
+echo ""
+
+if [ YES = "$debug" ]; then
+	echo ""
+    echo "Debug mode - starting using pdb, see http://docs.python.org/library/pdb.html"
+	echo ""
+    DEBUGGER="-m pdb"
+fi
+
+#
+# Start simulation
+#
+if [ YES = "$devmode" ]; then
+    echo "Normal start command suppressed:"
+    echo "$HODCP_ROOT/$PLATFORM/core/core.py \"$HODCP_ROOT\" \"$@\""
+    echo ""
+    ${PYTHON}
+else
+    ${PYTHON} ${DEBUGGER} $HODCP_ROOT/$PLATFORM/core/core.py "$HODCP_ROOT" "$@"
+fi

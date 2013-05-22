@@ -1,0 +1,25 @@
+{
+    "version":1,
+    "description":
+    "test_serial_1: Test a simple point-to-point serial link.",
+    "nodes":{
+        "urn:hodcp:node:1":{
+            "config":{},
+            "interfaces": {
+                "ser0": {}
+            },
+            "class": "comm_source"
+        },
+        "urn:hodcp:node:2":{
+            "config":{},
+            "interfaces": {
+                "ser0": {}
+            },
+            "class": "comm_sink"
+        }
+    },
+    "links": {
+        "urn:hodcp:node:1:ser0":"urn:hodcp:node:2:ser0"
+    }
+}
+
