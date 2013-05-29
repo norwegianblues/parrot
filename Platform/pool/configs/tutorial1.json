@@ -1,0 +1,24 @@
+{
+    "version": 1,
+    "description": "Tutorial 1: Two nodes communicating over a serial link.",
+    "nodes": {
+        "urn:hodcp:node:1": {
+            "class": "comm_source",
+            "interfaces": {
+                "ser0": {}
+            },
+            "config": {}
+        },
+        "urn:hodcp:node:2": {
+            "class": "comm_sink",
+            "interfaces": {
+                "ser0": {}
+            },
+            "config": {}
+        }
+    },
+    "links": {
+        "urn:hodcp:node:1:ser0":"urn:hodcp:node:2:ser0"
+    },
+    "networks": {}
+}
