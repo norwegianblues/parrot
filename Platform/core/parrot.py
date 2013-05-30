@@ -316,6 +316,11 @@ class Socket:
                 done = True
                 print "**** End of queue [%s] ****" % name
 
+    def getsockname(self):
+        address = (self.ip, self.port) 
+        # print "getsockname(%s, %d)"%address
+        return address
+
     def setsockopt(self, foo, bar, baz):
         pass
                 
