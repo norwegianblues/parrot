@@ -40,11 +40,14 @@ class Socket:
     # Socket-like object and APIs provided from communication channel
     # The id and iface_name are normally not passed here. These arguments
     # are passed internally when a new socket is created in accept().
-    def __init__(self, node, **kwargs):
+    def __init__(self, node, family=AF_INET, type=SOCK_STREAM, proto=0, **kwargs):
         """
         Create a ParrotSocket
         node -- node for which this socket is simulated (caller)
-        id -- unique id to this socket, generated if not provided
+        family -- only AF_INET (default) supported
+        type -- either SOCK_STREAM (default) or SOCK_DGRAM
+        proto -- protocol number, usually zero (default)
+        kwargs -- internal use only, see implementation of accept()
         """
         self.node = node
         self.comm_chan = node.comm_chan

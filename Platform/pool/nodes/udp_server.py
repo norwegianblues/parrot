@@ -40,6 +40,7 @@ class udp_server(hodcp.Node, threading.Thread):
         server = parrot.Socket(self)
         server.bind(("0.0.0.0", 4321))
         #while not self.done:    # Run until cancelled
+        fd_set = parrot.select([server])
         message, client = server.recvfrom(256) # <=256 byte datagram
         self.log("Client connected: %s" % str(client))
         self.log("Echoing message")

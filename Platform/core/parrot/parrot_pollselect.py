@@ -40,6 +40,12 @@ def select(inputs):
     the potential sources have input available.
     """
 
+    # FIXME: Hackish workaround for UDP-socket not working with select
+    import parrot_socket
+    for s in inputs:
+        if isinstance(s, parrot_socket.Socket):
+            s._become_active_listener()
+
     # All sockets/devices within a node share a single communication channel
     cond = inputs[0].node.comm_chan.available_cond
 
