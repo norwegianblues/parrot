@@ -40,7 +40,7 @@ class Socket:
     # Socket-like object and APIs provided from communication channel
     # The id and iface_name are normally not passed here. These arguments
     # are passed internally when a new socket is created in accept().
-    def __init__(self, node, id=None, iface_name='UNASSIGNED'):
+    def __init__(self, node, **kwargs):
         """
         Create a ParrotSocket
         node -- node for which this socket is simulated (caller)
@@ -50,19 +50,20 @@ class Socket:
         self.comm_chan = node.comm_chan
         self.ip = "0.0.0.0"
         self.port = None
-        if id == None:
-            self.id = str(uuid.uuid4())
-        else:
-            self.id = id
         self.pending_op = None
         self.pending_params = None
         self.queue = Queue.Queue()
-        self.name = iface_name
+
+        self.name = kwargs.get('iface_name', 'UNASSIGNED')
+        new_uuid = str(uuid.uuid4())
+        self.id = kwargs.get('id', new_uuid)
+        # is_connect_event implies socket was created in response to a CONNECT
+        is_connect_event = (self.id != new_uuid) 
+
         # NB. While it's OK to register a serial device as ser0, ser1, etc.,
         #     that is NOT possible for sockets, so we use the id instead.
         self.comm_chan.register_handler_for_interface(self.id, self._set_data)
-        if id is not None:
-            # This means this socket was created in response to a CONNECT
+        if is_connect_event:
             msg = networking.build_message(networking.ACCEPT, id=self.id)
             self.comm_chan.send_cmd(msg, self)
         # print '[ParrotSocket %s] __init__: ' % (self.id)
@@ -153,7 +154,7 @@ class Socket:
             # print '[ParrotSocket %s] accept: Expected NEW_CONN, got: %s' % (self.id, message)
             return None
 
-        return Socket(self.node, params['new_id'], self.name)
+        return Socket(self.node, id=params['new_id'], iface_name=self.name)
 
     def connect(self, address):
         """Connect to an address where `address` is a tuple of (ip, port)."""
