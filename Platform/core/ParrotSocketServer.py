@@ -14,6 +14,17 @@
 #
 ########################################################################
 
+"""Parrot SocketServer
+
+    This module implements SocketServer for use in Parrot.
+    For documentation see Python's built in SocketServer module.
+
+    Notable differences:
+    * The server constructor(s) takes an extra parameter (node) as the first argument.
+    * ForkingMixIn cannot be used.
+    * No UDPServer until a bug in parrot.socket/parrot.select for UDP has been fixed.
+"""
+
 import parrot
 import SocketServer
 
@@ -26,6 +37,16 @@ socket.getfqdn = _override_getfqdn
 
 
 class TCPServer(SocketServer.TCPServer):
+    """Base class for various socket-based server classes.
+
+    Methods for the caller:
+
+    - __init__(node, server_address, RequestHandlerClass, bind_and_activate=True)
+    - serve_forever(poll_interval=0.5)
+    - shutdown()
+    - handle_request()  # if you don't use serve_forever()
+    """
+
     def __init__(self, node, server_address, RequestHandlerClass, bind_and_activate=True):
         SocketServer.BaseServer.__init__(self, server_address, RequestHandlerClass)
         self.socket = parrot.Socket(node)
@@ -66,6 +87,7 @@ class TCPServer(SocketServer.TCPServer):
         self._handle_request_noblock()
 
     def get_request(self):
+        # FIXME: Fix parrot.socket return semantics, then scrap this method
         return (self.socket.accept(), (None, None))
 
 

@@ -11,7 +11,7 @@ import ParrotSocketServer
 
 class http_server(hodcp.Node, threading.Thread):
     ### N.B. HTML-files are served relative to HODCP_ROOT
-    ###      e.g. $HODCP_ROOT/index.html would be served by deafult.
+    ###      e.g. $HODCP_ROOT/index.html would be served by default.
     
     from accessors import set, get, configure as default_configure
     
