@@ -31,3 +31,4 @@ As always
 
 * Add documentation
 * Add more modules
+* Add tests and Travis-Ci (or similar) for automatic testing
