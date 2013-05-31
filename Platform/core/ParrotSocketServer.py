@@ -25,8 +25,7 @@ def _override_getfqdn(name=''):
 socket.getfqdn = _override_getfqdn
 
 
-class TCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
-    
+class TCPServer(SocketServer.TCPServer):
     def __init__(self, node, server_address, RequestHandlerClass, bind_and_activate=True):
         SocketServer.BaseServer.__init__(self, server_address, RequestHandlerClass)
         self.socket = parrot.Socket(node)
@@ -69,6 +68,10 @@ class TCPServer(SocketServer.ThreadingMixIn, SocketServer.TCPServer):
     def get_request(self):
         return (self.socket.accept(), (None, None))
 
+
+ThreadingMixIn = SocketServer.ThreadingMixIn
+
+class ThreadingTCPServer(ThreadingMixIn, TCPServer): pass
 
 class BaseRequestHandler(SocketServer.BaseRequestHandler): pass
 class StreamRequestHandler(SocketServer.BaseRequestHandler): pass
