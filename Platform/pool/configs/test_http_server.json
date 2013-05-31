@@ -1,0 +1,41 @@
+{
+    "version":1,
+    "description":
+    "test_http_server: Test inbound proxy on localhost:8088 and TCPServer/HTTPServer.",
+    "nodes":{
+        "urn:hodcp:node:client1":{
+            "config":{
+		"server":"10.1.2.2",
+		"port":80,
+		"proxy_port":8088, 
+		"outbound":false
+	    },
+            "interfaces": {
+                "eth0": {
+                    "ip": "10.1.2.1",
+                    "network": "urn:backplane:subnet:nw"
+                }
+            },
+            "class": "tcp_proxy"
+        },
+        "urn:hodcp:node:server":{
+            "config":{
+		"port":80	    
+	    },
+            "interfaces": {
+                "eth0": {
+                    "ip": "10.1.2.2",
+                    "network": "urn:backplane:subnet:nw"
+                }
+            },
+            "class": "http_server"
+        }
+    },
+    "networks": {
+        "urn:backplane:subnet:nw": {
+            "IPv4Base": "10.1.2.0",
+            "IPv4Mask": "255.255.255.0"
+        }
+    }
+}
+
