@@ -30,10 +30,35 @@ SOCK_RAW = socket.SOCK_RAW
 SOL_SOCKET = socket.SOL_SOCKET
 SO_REUSEADDR = socket.SO_REUSEADDR
 
-def socket(node, family=AF_INET, type=SOCK_STREAM, proto=0, **kwargs):
+def _ip_address_to_int(ip_address):
+    """
+    Convert a numerical IP address a.b.c.d to a 32-bit integer representation.
+    For our purposes, the endian-ness of the result doesn't matter.
+    """
+    sum = 0
+    for octet in ip_address.split('.'):
+        sum = sum * 256 + int(octet)
+    return sum    
+
+def socket(node, family=AF_INET, type=SOCK_STREAM, proto=0):
+    """
+        Create a ParrotSocket
+        node -- node for which this socket is simulated (caller),
+                the node must be a subclass of :py:class:`hodcp.Node`
+        family -- only AF_INET (default) supported
+        type -- either SOCK_STREAM (default) or SOCK_DGRAM
+        proto -- protocol number, usually zero (default)
+        """
+    if family != AF_INET:
+        raise SocketException("Invalid family")
+
     if type==SOCK_STREAM:
-        return StreamSocket(node, family, type, proto, **kwargs)
-    elif 
+        return StreamSocket(node, family, type, proto)
+    elif type==SOCK_DGRAM:
+        return DatagramSocket(node, family, type, proto)
+    else:
+        raise SocketException("Invalid type")
+
 Socket = socket
 
 class StreamSocket(object):
@@ -56,6 +81,9 @@ class StreamSocket(object):
         kwargs -- internal use only, see implementation of accept()
         """
         self.node = node
+        self._family = family
+        self._type = type
+        self._proto = proto
         self.comm_chan = node.comm_chan
         self.ip = "0.0.0.0"
         self.port = None
@@ -76,6 +104,18 @@ class StreamSocket(object):
             msg = networking.build_message(networking.ACCEPT, id=self.id)
             self.comm_chan.send_cmd(msg, self)
         # print '[ParrotSocket %s] __init__: ' % (self.id)
+
+    @property
+    def family(self):
+        return self._family  
+
+    @property
+    def type(self):
+        return self._type  
+
+    @property
+    def proto(self):
+        return self._proto  
 
     def _dump_queue(self):
         """DEBUG. Print the contents of the internal data queue. Destroys queue"""
@@ -163,7 +203,7 @@ class StreamSocket(object):
             # print '[ParrotSocket %s] accept: Expected NEW_CONN, got: %s' % (self.id, message)
             return None
 
-        return Socket(self.node, id=params['new_id'], iface_name=self.name)
+        return StreamSocket(self.node, family=self.family, id=params['new_id'], iface_name=self.name)
 
     def connect(self, address):
         """Connect to an address where `address` is a tuple of (ip, port)."""
@@ -196,13 +236,6 @@ class StreamSocket(object):
         #         raise RuntimeError("socket connection broken")
         #     totalsent = totalsent + sent    
         
-    def sendto(self, data, address):
-        """Send `data` (UDP) to an `address` which is a tuple of (ip, port)."""
-        if not self.port:
-            self._assign_port()
-        message = networking.build_message(networking.SENDTO, id=self.id, src_port=self.port, dst_ip=address[0], dst_port=address[1], payload=data)
-        # print '[ParrotSocket %s] send: %s' % (self.id, message)
-        self.comm_chan.send_cmd(message, self)
 
     def data_available(self):
         return not self.queue.empty()
@@ -218,37 +251,6 @@ class StreamSocket(object):
                 print '[ParrotSocket %s] Unexpected message in recv(), got: %s' % (self.id, message)
             return None
         return params['payload']
-
-    def _become_active_listener(self, assign_port = True):
-        ## Inform BP that we are listening.
-        if not self.port:
-            if not assign_port:
-                raise SocketException("Parrot UDP socket has no assigned port")
-            else:
-                self._assign_port()
-        message = networking.build_message(networking.RECVFROM, id=self.id, ip=self.ip, port=self.port)
-        self.comm_chan.send_cmd(message, self)
-
-    def recvfrom(self, dummy):
-        """Receive data from the socket.
-        
-        The return value is a pair (data, address) where data is data received and
-        address is the tuple of (ip, port) of the socket sending the data.
-
-        The parameter `dummy` is currently unused.
-        """
-
-        self._become_active_listener()
-
-        message = self.queue.get()
-        op, params = networking.parse_message(message) 
-        if not op == 'RECDFROM':
-            if op == 'DISCONN':
-                self.comm_chan.unregister_handler_for_interface(self.id)
-            else:
-                print '[ParrotSocket %s] Unexpected message in recv(), got: %s' % (self.id, message)
-            return None
-        return params['payload'], (params['src_ip'], params['src_port'])
 
     def close(self):
         """Close the socket."""
@@ -284,13 +286,44 @@ class StreamSocket(object):
         print '[ParrotSocket %s] cannot find interface for address %s, defaulting to eth0' % (self.id, ip_address)
         return "eth0"
 
+class DatagramSocket(StreamSocket):
 
-def _ip_address_to_int(ip_address):
-    """
-    Convert a numerical IP address a.b.c.d to a 32-bit integer representation.
-    For our purposes, the endian-ness of the result doesn't matter.
-    """
-    sum = 0
-    for octet in ip_address.split('.'):
-        sum = sum * 256 + int(octet)
-    return sum    
+    def _become_active_listener(self, assign_port = True):
+        ## Inform BP that we are listening.
+        if not self.port:
+            if not assign_port:
+                raise SocketException("Parrot UDP socket has no assigned port")
+            else:
+                self._assign_port()
+        message = networking.build_message(networking.RECVFROM, id=self.id, ip=self.ip, port=self.port)
+        self.comm_chan.send_cmd(message, self)
+
+    def recvfrom(self, dummy):
+        """Receive data from the socket.
+        
+        The return value is a pair (data, address) where data is data received and
+        address is the tuple of (ip, port) of the socket sending the data.
+
+        The parameter `dummy` is currently unused.
+        """
+
+        self._become_active_listener()
+
+        message = self.queue.get()
+        op, params = networking.parse_message(message) 
+        if not op == 'RECDFROM':
+            if op == 'DISCONN':
+                self.comm_chan.unregister_handler_for_interface(self.id)
+            else:
+                print '[ParrotSocket %s] Unexpected message in recv(), got: %s' % (self.id, message)
+            return None
+        return params['payload'], (params['src_ip'], params['src_port'])
+
+    def sendto(self, data, address):
+        """Send `data` (UDP) to an `address` which is a tuple of (ip, port)."""
+        if not self.port:
+            self._assign_port()
+        message = networking.build_message(networking.SENDTO, id=self.id, src_port=self.port, dst_ip=address[0], dst_port=address[1], payload=data)
+        # print '[ParrotSocket %s] send: %s' % (self.id, message)
+        self.comm_chan.send_cmd(message, self)
+

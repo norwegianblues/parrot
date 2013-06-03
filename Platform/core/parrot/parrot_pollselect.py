@@ -41,9 +41,9 @@ def select(inputs):
     """
 
     # FIXME: Hackish workaround for UDP-socket not working with select
-    import parrot_socket
+    import parrot
     for s in inputs:
-        if isinstance(s, parrot_socket.BaseSocket):
+        if getattr(s, 'type', None) == parrot.SOCK_DGRAM:
             s._become_active_listener()
 
     # All sockets/devices within a node share a single communication channel

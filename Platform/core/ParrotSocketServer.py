@@ -90,10 +90,12 @@ class TCPServer(SocketServer.TCPServer):
         # FIXME: Fix parrot.socket return semantics, then scrap this method
         return (self.socket.accept(), (None, None))
 
+class UDPServer(TCPServer): pass
 
 ThreadingMixIn = SocketServer.ThreadingMixIn
 
 class ThreadingTCPServer(ThreadingMixIn, TCPServer): pass
+class ThreadingUDPServer(ThreadingMixIn, UDPServer): pass
 
 class BaseRequestHandler(SocketServer.BaseRequestHandler): pass
 class StreamRequestHandler(SocketServer.BaseRequestHandler): pass
