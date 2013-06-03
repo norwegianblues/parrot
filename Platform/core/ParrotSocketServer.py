@@ -47,9 +47,11 @@ class TCPServer(SocketServer.TCPServer):
     - handle_request()  # if you don't use serve_forever()
     """
 
+    socket_type = parrot.SOCK_STREAM
+
     def __init__(self, node, server_address, RequestHandlerClass, bind_and_activate=True):
         SocketServer.BaseServer.__init__(self, server_address, RequestHandlerClass)
-        self.socket = parrot.Socket(node)
+        self.socket = parrot.Socket(node, type=self.socket_type)
         if bind_and_activate:
             self.server_bind()
             self.server_activate()
@@ -90,7 +92,28 @@ class TCPServer(SocketServer.TCPServer):
         # FIXME: Fix parrot.socket return semantics, then scrap this method
         return (self.socket.accept(), (None, None))
 
-class UDPServer(TCPServer): pass
+class UDPServer(TCPServer):
+
+    """UDP server class."""
+
+    allow_reuse_address = False
+
+    socket_type = parrot.SOCK_DGRAM
+
+    max_packet_size = 8192
+
+    def get_request(self):
+        data, client_addr = self.socket.recvfrom(self.max_packet_size)
+        return (data, self.socket), client_addr
+
+    def server_activate(self):
+        pass
+
+    def shutdown_request(self, request):
+        self.close_request(request)
+
+    def close_request(self, request):
+        pass
 
 ThreadingMixIn = SocketServer.ThreadingMixIn
 
