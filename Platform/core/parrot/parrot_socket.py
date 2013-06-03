@@ -30,7 +30,13 @@ SOCK_RAW = socket.SOCK_RAW
 SOL_SOCKET = socket.SOL_SOCKET
 SO_REUSEADDR = socket.SO_REUSEADDR
 
-class Socket:
+def socket(node, family=AF_INET, type=SOCK_STREAM, proto=0, **kwargs):
+    if type==SOCK_STREAM:
+        return StreamSocket(node, family, type, proto, **kwargs)
+    elif 
+Socket = socket
+
+class StreamSocket(object):
     """Create a new Parrot socket.
 
     Pass a reference to the node that owns the socket. 
@@ -258,7 +264,7 @@ class Socket:
 
     def interface_lookup(self, ip_address):
         # TODO: this is IPv4 specific -- IPv6 not supported
-        dest_address = Socket.ip_address_to_int(ip_address)
+        dest_address = _ip_address_to_int(ip_address)
         for iface, descr in self.node.interfaces.iteritems():
             # if IP base & mask are missing, any interface will do
             conf = descr.get('config')
@@ -270,21 +276,21 @@ class Socket:
                 print '[ParrotSocket %s] IPv4 mask and/or address missing, selecting %s' % (self.id, iface)
                 return iface
 
-            nw_address = Socket.ip_address_to_int(nw_address_str)
-            nw_mask    = Socket.ip_address_to_int(nw_mask_str)
+            nw_address = _ip_address_to_int(nw_address_str)
+            nw_mask    = _ip_address_to_int(nw_mask_str)
             if (dest_address & nw_mask) == (nw_address & nw_mask):
                 # print '[ParrotSocket %s] associated with interface %s' % (self.id, iface)
                 return iface
         print '[ParrotSocket %s] cannot find interface for address %s, defaulting to eth0' % (self.id, ip_address)
         return "eth0"
 
-    @staticmethod
-    def ip_address_to_int(ip_address):
-        """
-        Convert a numerical IP address a.b.c.d to a 32-bit integer representation.
-        For our purposes, the endian-ness of the result doesn't matter.
-        """
-        sum = 0
-        for octet in ip_address.split('.'):
-            sum = sum * 256 + int(octet)
-        return sum
+
+def _ip_address_to_int(ip_address):
+    """
+    Convert a numerical IP address a.b.c.d to a 32-bit integer representation.
+    For our purposes, the endian-ness of the result doesn't matter.
+    """
+    sum = 0
+    for octet in ip_address.split('.'):
+        sum = sum * 256 + int(octet)
+    return sum    
