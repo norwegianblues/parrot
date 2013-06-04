@@ -36,7 +36,7 @@ class udp_server(node.Node, threading.Thread):
         self.done = True
 
     def run(self):
-        server = parrot.Socket(self)
+        server = parrot.Socket(self, type=parrot.SOCK_DGRAM)
         server.bind(("0.0.0.0", 4321))
         #while not self.done:    # Run until cancelled
         fd_set = parrot.select([server])

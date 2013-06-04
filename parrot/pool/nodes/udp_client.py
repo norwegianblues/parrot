@@ -40,7 +40,8 @@ class udp_client(node.Node, threading.Thread):
         messout = 'Hello over UDP'
         address = ("10.1.2.2", 4321)
 
-        sock = parrot.Socket(self)
+        sock = parrot.Socket(self, type=parrot.SOCK_DGRAM)
+
         # sock.bind(("0.0.0.0", 2137))
         sock.sendto(messout, address)
         messin, peer = sock.recvfrom(256) # <=256 byte datagram

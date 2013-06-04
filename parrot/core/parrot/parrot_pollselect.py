@@ -3,16 +3,18 @@
 
 ########################################################################
 # Copyright (c) 2013 Ericsson AB
-# 
+#
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
 # which accompanies this distribution, and is available at
 # http://www.eclipse.org/legal/epl-v10.html
-# 
+#
 # Contributors:
 #    Ericsson Research - initial implementation
 #
 ########################################################################
+
+import parrot_socket
 
 # Known constants
 POLLIN = 1
@@ -41,9 +43,9 @@ def select(inputs):
     """
 
     # FIXME: Hackish workaround for UDP-socket not working with select
-    import parrot_socket
+    import parrot
     for s in inputs:
-        if isinstance(s, parrot_socket.Socket):
+        if getattr(s, 'type', None) == parrot_socket.SOCK_DGRAM:
             s._become_active_listener()
 
     # All sockets/devices within a node share a single communication channel
@@ -87,10 +89,10 @@ class poll():
     def poll(self, timeout=None):
         """ Return a list of (fd, evt) tuples.
 
-        Polls the set of registered file descriptors, and returns a possibly-empty list containing (fd, event) 2-tuples for the descriptors that have events or errors to report. 
-        fd is the file descriptor, and event is a bitmask with bits set for the reported events for that descriptor  POLLIN for waiting input, POLLOUT to indicate that the descriptor can be written to. 
-        An empty list indicates that the call timed out and no file descriptors had any events to report. 
-        If timeout is given, it specifies the length of time in milliseconds which the system will wait for events before returning. 
+        Polls the set of registered file descriptors, and returns a possibly-empty list containing (fd, event) 2-tuples for the descriptors that have events or errors to report.
+        fd is the file descriptor, and event is a bitmask with bits set for the reported events for that descriptor  POLLIN for waiting input, POLLOUT to indicate that the descriptor can be written to.
+        An empty list indicates that the call timed out and no file descriptors had any events to report.
+        If timeout is given, it specifies the length of time in milliseconds which the system will wait for events before returning.
         If timeout is omitted, negative, or None, the call will block until there is an event for this poll object.
         """
         inputs = [i for i in self.registry if (self.registry[i] & POLLIN) == POLLIN]
