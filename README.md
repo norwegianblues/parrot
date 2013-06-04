@@ -15,6 +15,10 @@ There will be bridging available between the platform and the physical world, ma
 
 It is important to note that tools for device and service development are not part of the project per se.
 
+Documentation
+-----
+The documentation for this project can be found at <https://github.com/norwegianblues/norwegianblues/wiki>
+
 Rules
 -----
 1. Use spaces, not tabs.
