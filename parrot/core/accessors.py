@@ -3,12 +3,12 @@
 
 ########################################################################
 # Copyright (c) 2013 Ericsson AB
-# 
+#
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
 # which accompanies this distribution, and is available at
 # http://www.eclipse.org/legal/epl-v10.html
-# 
+#
 # Contributors:
 #    Ericsson Research - initial implementation
 #
@@ -30,14 +30,14 @@ def set(self, key, value, sender = None):
     if key in self.state:
         # look up the actual type, carefully
         attr_desc = self.state['capabilities'].get(key)
-        if not attr_desc: 
+        if not attr_desc:
             self.log("Error in set(%s, %s): Missing key (%s)" % (key, str(value), key))
             return False
         type_desc = attr_desc.get('type')
-        if not type_desc: 
+        if not type_desc:
             self.log("Error in set(%s, %s): Missing attribute description for key (%s)" % (key, str(value), key))
             return False
-        
+
         if type_desc == 'boolean':
             if value in [True, 'true', 'True', 'TRUE', 'yes', 'Yes', 'YES', 'y', 1, '1', 'on', 'On', 'ON']:
                 self.state[key] = True
@@ -111,11 +111,11 @@ def access_socket_main(self):
                     s.close()
                     inputs.remove(s)
                     continue
-                    
+
                 data = data.rstrip(None) # Remove trailing whitespace
                 content = data.split(' ', 2)
                 # Check availability and access rights of property
-                
+
                 if content[0] == 'read':
                     if len(content) != 2:
                         s.send("error malformed command '%s'\n" % data)
@@ -131,8 +131,8 @@ def access_socket_main(self):
                         s.send("error malformed command '%s'\n" % data)
                         continue
                     key = content[1]
-                    access  = access_rights(self, key)                    
-                    if not access or not 'w' in access:   
+                    access  = access_rights(self, key)
+                    if not access or not 'w' in access:
                         s.send("error write access denied for '%s'\n" % key)
                         continue
                     if not self.set(key, content[2]):

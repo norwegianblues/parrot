@@ -3,12 +3,12 @@
 
 ########################################################################
 # Copyright (c) 2013 Ericsson AB
-# 
+#
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
 # which accompanies this distribution, and is available at
 # http://www.eclipse.org/legal/epl-v10.html
-# 
+#
 # Contributors:
 #    Ericsson Research - initial implementation
 #
@@ -16,9 +16,9 @@
 
 import sys
 import threading
-import hodcp
-import parrot
-import ParrotSocketServer
+from parrot.core import node
+from parrot.core import ParrotSocketServer
+
 
 class MyTCPHandler(ParrotSocketServer.BaseRequestHandler):
     """
@@ -39,12 +39,12 @@ class MyTCPHandler(ParrotSocketServer.BaseRequestHandler):
         self.request.send(self.data.upper())
 
 
-class tcp_server(hodcp.Node, threading.Thread):
+class tcp_server(node.Node, threading.Thread):
 
-    from accessors import set, get, configure as default_configure
-    
+    from parrot.core.accessors import set, get, configure as default_configure
+
     def __init__(self, urn, conn):
-        hodcp.Node.__init__(self, urn, conn)
+        node.Node.__init__(self, urn, conn)
         threading.Thread.__init__(self)
 
     def configure(self, params):
@@ -63,5 +63,5 @@ class tcp_server(hodcp.Node, threading.Thread):
         self.server = ParrotSocketServer.TCPServer(self, ("0.0.0.0", self.port), MyTCPHandler)
         self.server.serve_forever()
 
-                        
+
 

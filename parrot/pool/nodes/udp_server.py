@@ -3,12 +3,12 @@
 
 ########################################################################
 # Copyright (c) 2013 Ericsson AB
-# 
+#
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
 # which accompanies this distribution, and is available at
 # http://www.eclipse.org/legal/epl-v10.html
-# 
+#
 # Contributors:
 #    Ericsson Research - initial implementation
 #
@@ -17,17 +17,16 @@
 # UDP echo server
 
 import threading
-import hodcp
+from parrot.core import node
 import parrot
 
 
+class udp_server(node.Node, threading.Thread):
 
-class udp_server(hodcp.Node, threading.Thread):
+    from parrot.core.accessors import get, set
 
-    from accessors import get, set
-    
     def __init__(self, urn, conn):
-        hodcp.Node.__init__(self, urn, conn)
+        node.Node.__init__(self, urn, conn)
         threading.Thread.__init__(self)
 
     def activate(self):

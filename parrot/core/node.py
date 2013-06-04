@@ -3,12 +3,12 @@
 
 ########################################################################
 # Copyright (c) 2013 Ericsson AB
-# 
+#
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
 # which accompanies this distribution, and is available at
 # http://www.eclipse.org/legal/epl-v10.html
-# 
+#
 # Contributors:
 #    Ericsson Research - initial implementation
 #
@@ -21,6 +21,8 @@ import select
 import time
 import imp
 import threading
+import importlib
+import sys
 from comm_chan import CommChan
 
 def create_node(config, urn, conn):
@@ -35,14 +37,20 @@ def create_node(config, urn, conn):
 
     node_class_name = config.get('class', "NodeClassNameNotProvided")
 
+    file = None
     try:
         file, filename, description = imp.find_module(node_class_name)
-    except ImportError:
-        print '[Core] Cannot find module <', node_class_name, '>\n'
-    try:
         module = imp.load_module(node_class_name, file, filename, description)
     except ImportError:
-        print '[Core] Cannot load module <', node_class_name, '>\n'
+        try:
+            module = importlib.import_module(node_class_name)
+        except ImportError:
+            try:
+                # Last look for nodes bundled with Parrot
+                module = importlib.import_module('parrot.pool.nodes.' + node_class_name)
+            except ImportError:
+                print '[Core] Cannot load module <', node_class_name, '>'
+                sys.exit(1)
     finally:
         if file:
             file.close()
@@ -92,8 +100,8 @@ class Node:
     activate(), deactivate(), configure()
     Optionally, the following methods could be overridden in the subclass:
     set(), get(), control_message()
-    
-    N.B. In general, :py:class:`hodcp.Node()` should not be called directly, 
+
+    N.B. In general, :py:class:`node.Node()` should not be called directly,
     it will be called by the platform during startup based on the config script."""
 
     def __init__(self, urn, conn):
@@ -109,7 +117,7 @@ class Node:
         self.inputs = []
         self.state = {'capabilities': { 'logging': { 'type': 'boolean' }}}
         self.state['logging'] = True
-        
+
     def log(self, msg):
         """Add a log entry of the form <timestamp> <urn> <msg> to the log database."""
 
@@ -182,8 +190,8 @@ class Node:
         else:
             self.control_message(params)
 
-    # REVISION: 1) Why is comm channel socket in this select? 
-    #           2) Shouldn't self.comm_chan.recv_cmd() be a callback from CommChan?      
+    # REVISION: 1) Why is comm channel socket in this select?
+    #           2) Shouldn't self.comm_chan.recv_cmd() be a callback from CommChan?
     def startControlChannel(self):
         ctrl = self.conn
         self.inputs.append(ctrl)

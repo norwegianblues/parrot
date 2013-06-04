@@ -3,12 +3,12 @@
 
 ########################################################################
 # Copyright (c) 2013 Ericsson AB
-# 
+#
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
 # which accompanies this distribution, and is available at
 # http://www.eclipse.org/legal/epl-v10.html
-# 
+#
 # Contributors:
 #    Ericsson Research - initial implementation
 #
@@ -18,15 +18,15 @@ import sys
 import threading
 import thread
 import socket
-import hodcp
-import parrot    
+from parrot.core import node
+import parrot
 
-class tcp_proxy(hodcp.Node, threading.Thread):
+class tcp_proxy(node.Node, threading.Thread):
 
-    from accessors import set, get, configure as default_configure
-    
+    from parrot.core.accessors import set, get, configure as default_configure
+
     def __init__(self, urn, conn):
-        hodcp.Node.__init__(self, urn, conn)
+        node.Node.__init__(self, urn, conn)
         threading.Thread.__init__(self)
 
     def configure(self, params):
@@ -41,7 +41,7 @@ class tcp_proxy(hodcp.Node, threading.Thread):
             key = pcap.keys()[0]
             self.state['capabilities'].update({ key : pcap[key] })
             self.state.update({key : pcap[key].get('default', 0)})
-        
+
     def activate(self):
         self.start()
 
@@ -83,11 +83,11 @@ class tcp_proxy(hodcp.Node, threading.Thread):
                     source.shutdown(socket.SHUT_RD)
                 except:
                     # This will always fail on OS X?
-                    # print "FAIL: shutdown source: ", source  
-                    pass 
+                    # print "FAIL: shutdown source: ", source
+                    pass
                 try:
                     destination.shutdown(socket.SHUT_WR)
                 except:
                     print "FAIL: shutdown destination: ", destination
-                        
+
 

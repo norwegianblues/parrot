@@ -3,12 +3,12 @@
 
 ########################################################################
 # Copyright (c) 2013 Ericsson AB
-# 
+#
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
 # which accompanies this distribution, and is available at
 # http://www.eclipse.org/legal/epl-v10.html
-# 
+#
 # Contributors:
 #    Ericsson Research - initial implementation
 #
@@ -18,7 +18,7 @@
 
 import sys
 import threading
-from hodcp import Node
+from parrot.core.node import Node
 import parrot # for parrot.Device
 
 class comm_sink(Node, threading.Thread):
@@ -52,8 +52,8 @@ class comm_sink(Node, threading.Thread):
 
     def prettify(self, str):
         return ''.join(s for s in str if s not in "\r\n")
-        
-        
+
+
     def run(self):
         dev = parrot.Device(self, 'ser0')
         dev.open()
