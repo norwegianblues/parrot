@@ -17,9 +17,8 @@
 import threading
 import parrot
 import time
-import ParrotSocketServer
-
-from hodcp import Node
+from parrot.core import ParrotSocketServer
+from parrot.core.node import Node
 
 # Avoid complaints about address in use (set REUSEADDR flag)
 ParrotSocketServer.TCPServer.allow_reuse_address = True
@@ -43,7 +42,7 @@ class house_gateway(Node, threading.Thread):
     NODE_PORT         = 1234
     
     
-    from accessors import get, set, configure as default_configure
+    from parrot.core.accessors import get, set, configure as default_configure
 
     def __init__(self, urn, conn):
         Node.__init__(self, urn, conn)
