@@ -76,8 +76,6 @@ class Core:
         return conn
 
     def load_config(self, config_file, required_version=1):
-        if not os.path.isabs(config_file) and not os.path.isfile(config_file):
-            config_file = HODCP_ROOT+'/Configs/'+config_file
         if not os.path.isfile(config_file):
             return False
 
