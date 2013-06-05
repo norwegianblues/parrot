@@ -22,10 +22,10 @@ import os
 import json
 import select
 import logger
+import logging
 from multiprocessing import Process, Pipe
 from weblink import create_weblink
 
-HODCP_ROOT="."
 
 class Core:
     """The fundamental part of the platform.
@@ -76,8 +76,6 @@ class Core:
         return conn
 
     def load_config(self, config_file, required_version=1):
-        if not os.path.isabs(config_file) and not os.path.isfile(config_file):
-            config_file = HODCP_ROOT+'/Configs/'+config_file
         if not os.path.isfile(config_file):
             return False
 

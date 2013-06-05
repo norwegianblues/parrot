@@ -44,7 +44,7 @@ class ParrotRuntime:
 
     def __init__(self, args):
         self.args = args
-        self._setup_environment(args)
+        self._setup_environment()
 
     def run(self):
         def cleanup(signal, frame):
@@ -112,13 +112,12 @@ class ParrotRuntime:
         try:
             os.chdir(os.path.dirname(os.path.abspath(self.args.simulation)) + '/../nodes')
             simulation_root = os.getcwd()
-            #logging.info('%s is %s' % (SIMULATION_ROOT_NAME, simulation_root))
         except OSError:
             logging.warn('Only bundled node modules available for simulation.')
 
         return simulation_root
 
-    def _setup_environment(self, args):
+    def _setup_environment(self):
         """
         Eventually it would be better to remove dependencies on environment
         variables completely. This is a step towards that by hiding the
@@ -133,6 +132,8 @@ class ParrotRuntime:
 
         if args.debug:
             os.environ['PARROT_DEBUG'] = 'TRUE'
+
+        self.args.simulation = os.path.abspath(self.args.simulation)
 
         simulation_root = self._get_simulation_root()
         sys.path.append(simulation_root)
