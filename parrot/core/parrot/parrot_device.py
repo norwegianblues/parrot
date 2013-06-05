@@ -3,12 +3,12 @@
 
 ########################################################################
 # Copyright (c) 2013 Ericsson AB
-# 
+#
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
 # which accompanies this distribution, and is available at
 # http://www.eclipse.org/legal/epl-v10.html
-# 
+#
 # Contributors:
 #    Ericsson Research - initial implementation
 #
@@ -21,8 +21,8 @@ class Device:
     """Create a new Parrot device.
 
     Pass a reference to the node that owns the socket, and the device name.
-    
-    :param node: must be a subclass of :py:class:`hodcp.Node`
+
+    :param node: must be a subclass of :py:class:`node.Node`
     :param devicename: is currently limited to 'ser<N>', where N is in the range 0-9.
     """
 
@@ -129,6 +129,6 @@ class Device:
 
 
     def write(self, bytes):
-        """Write `bytes` data to device.""" 
+        """Write `bytes` data to device."""
         # print '[%s:%s] write: Sending "%s"' % (self.node.urn, self.name, str(bytes))
         self.comm_chan.send_cmd(str(bytes), self)

@@ -3,12 +3,12 @@
 
 ########################################################################
 # Copyright (c) 2013 Ericsson AB
-# 
+#
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
 # which accompanies this distribution, and is available at
 # http://www.eclipse.org/legal/epl-v10.html
-# 
+#
 # Contributors:
 #    Ericsson Research - initial implementation
 #
@@ -17,7 +17,7 @@
 import sys
 import imp
 import signal
-import hodcp
+import node
 import os
 import json
 import select
@@ -107,18 +107,24 @@ class Core:
             print formatted_description
 
         # Network backplane. Use default unless supplied by user in env var BACKPLANE
-        bp_module = os.environ.get('BACKPLANE', 'backplane')
-        file = None
+        backplane_module_name = os.environ.get('BACKPLANE', 'backplane')
+        backplane_module = None
+        backplane_filehandle = None
         try:
-            file, filename, description = imp.find_module(bp_module)
-            module = imp.load_module(bp_module, file, filename, description)
+            backplane_filehandle, filename, description = imp.find_module(backplane_module_name)
+            backplane_module = imp.load_module(backplane_module_name, backplane_filehandle,
+                                               filename, description)
         except ImportError:
-            print '[Core] Cannot find or load module <', bp_module, '>\n'
+            try:
+                import importlib
+                backplane_module = importlib.import_module('parrot.core.' + backplane_module_name)
+            except ImportError:
+                print '[Core] Cannot find or load module <', backplane_module_name, '>\n'
         finally:
-            if file:
-                file.close()
-            
-        self.nodes['urn:backplane'] = self.dispatch(module.create_backplane, timeout=30, params=(1111, self.config, ))
+            if backplane_filehandle:
+                backplane_filehandle.close()
+
+        self.nodes['urn:backplane'] = self.dispatch(backplane_module.create_backplane, timeout=30, params=(1111, self.config, ))
 
         # Create weblink
         self.nodes['urn:weblink'] = self.dispatch(create_weblink, timeout=0, params=(1112,))
@@ -137,7 +143,7 @@ class Core:
                 nw_urn = node_config['interfaces'][iface].get('network')
                 if nw_urn:
                     node_config['interfaces'][iface]['config'] = networks[nw_urn]
-        self.nodes[urn] = self.dispatch(hodcp.create_node, timeout=0, params=(node_config, urn,))        
+        self.nodes[urn] = self.dispatch(node.create_node, timeout=0, params=(node_config, urn,))
 
     def control_message(self, msg):
         # print "[Core::send_control_msg] msg = '%s'" % msg
@@ -213,35 +219,3 @@ class Core:
                 else:
                     # Dispatch to destination
                     self.send_control_msg(msg)
-
-
-
-def cleanup(signal, frame):
-    sys.exit(0)
-
-
-if __name__ == '__main__':
-
-    if len(sys.argv) < 3:
-        print("Usage: %s <HODCP_ROOT> <config_file.json>" % sys.argv[0])
-        sys.exit(0)
-
-    HODCP_ROOT = sys.argv[1]
-    config_file = sys.argv[2]
-
-    # Define this for sub-processes to read
-    os.environ['HODCP_ROOT']=HODCP_ROOT
-
-    core = Core()
-
-    # catch Ctrl-C interrupt and do cleanup (http://stackoverflow.com/q/1112343/1007047)
-    signal.signal(signal.SIGINT, cleanup)
-
-    try:
-        core.setup_platform(config_file)
-        core.start_nodes()
-        core.serve()
-    except SystemExit:
-        print("\n[Core] User stopped simulation, attempting cleanup")
-    finally:
-        core.shutdown()

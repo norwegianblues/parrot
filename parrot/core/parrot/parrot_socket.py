@@ -3,12 +3,12 @@
 
 ########################################################################
 # Copyright (c) 2013 Ericsson AB
-# 
+#
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
 # which accompanies this distribution, and is available at
 # http://www.eclipse.org/legal/epl-v10.html
-# 
+#
 # Contributors:
 #    Ericsson Research - initial implementation
 #
@@ -18,7 +18,7 @@ import socket
 import uuid
 import random
 import Queue
-import networking
+from parrot.core import networking
 
 AF_INET = socket.AF_INET
 # AF_UNIX = socket.AF_UNIX
@@ -38,7 +38,7 @@ def _ip_address_to_int(ip_address):
     sum = 0
     for octet in ip_address.split('.'):
         sum = sum * 256 + int(octet)
-    return sum    
+    return sum
 
 def socket(node, family=AF_INET, type=SOCK_STREAM, proto=0):
     """
@@ -64,7 +64,7 @@ Socket = socket
 class StreamSocket(object):
     """Create a new Parrot socket.
 
-    Pass a reference to the node that owns the socket. 
+    Pass a reference to the node that owns the socket.
     The node must be a subclass of :py:class:`hodcp.Node`.
     """
 
@@ -95,7 +95,7 @@ class StreamSocket(object):
         new_uuid = str(uuid.uuid4())
         self.id = kwargs.get('id', new_uuid)
         # is_connect_event implies socket was created in response to a CONNECT
-        is_connect_event = (self.id != new_uuid) 
+        is_connect_event = (self.id != new_uuid)
 
         # NB. While it's OK to register a serial device as ser0, ser1, etc.,
         #     that is NOT possible for sockets, so we use the id instead.
@@ -107,15 +107,15 @@ class StreamSocket(object):
 
     @property
     def family(self):
-        return self._family  
+        return self._family
 
     @property
     def type(self):
-        return self._type  
+        return self._type
 
     @property
     def proto(self):
-        return self._proto  
+        return self._proto
 
     def _dump_queue(self):
         """DEBUG. Print the contents of the internal data queue. Destroys queue"""
@@ -135,13 +135,13 @@ class StreamSocket(object):
                 print "**** End of queue [%s] ****" % name
 
     def getsockname(self):
-        address = (self.ip, self.port) 
+        address = (self.ip, self.port)
         # print "getsockname(%s, %d)"%address
         return address
 
     def setsockopt(self, foo, bar, baz):
         pass
-                
+
     def makefile(self, mode='r', bufsize=-1):
         """makefile([mode[, bufsize]]) -> file object
 
@@ -150,7 +150,7 @@ class StreamSocket(object):
 
         from socket import _fileobject
         return _fileobject(self, mode, bufsize)
-                
+
     def fileno(self):
         """Return an integer unique to each socket."""
         return uuid.UUID(self.id).int
@@ -164,9 +164,9 @@ class StreamSocket(object):
         self.queue.put(data)
 
     def bind(self, address):
-        """Bind the socket to address. 
+        """Bind the socket to address.
 
-        The socket must not already be bound. 
+        The socket must not already be bound.
         :param address: is a tuple of (ip, port).
         """
         ip = address[0]
@@ -192,9 +192,9 @@ class StreamSocket(object):
         self.comm_chan.send_cmd(msg, self)
 
     def accept(self):
-        """Accept a connection. 
+        """Accept a connection.
 
-        The socket must be bound to an address and listening for connections. 
+        The socket must be bound to an address and listening for connections.
         The return value is a new socket object usable to send and receive data on the connection.
         """
         message = self.queue.get()
@@ -214,7 +214,7 @@ class StreamSocket(object):
         # Block here waiting for ACCEPT from server
         message = self.queue.get()
 
-        op, params = networking.parse_message(message)        
+        op, params = networking.parse_message(message)
         if op != networking.ACCEPTED or params['id'] != self.id:
             raise SocketException("Failed in connecting")
 
@@ -234,8 +234,8 @@ class StreamSocket(object):
         #     ^^^^
         #     if sent == 0:
         #         raise RuntimeError("socket connection broken")
-        #     totalsent = totalsent + sent    
-        
+        #     totalsent = totalsent + sent
+
 
     def data_available(self):
         return not self.queue.empty()
@@ -243,7 +243,7 @@ class StreamSocket(object):
     def recv(self, n=1):
         """Receive data from the socket. The return value is a string representing the data received."""
         message = self.queue.get()
-        op, params = networking.parse_message(message) 
+        op, params = networking.parse_message(message)
         if not op == 'RECEIVED':
             if op == 'DISCONN':
                 self.close()
@@ -254,7 +254,7 @@ class StreamSocket(object):
 
     def close(self):
         """Close the socket."""
-        if self.comm_chan.has_registered_handler(self.id): 
+        if self.comm_chan.has_registered_handler(self.id):
             # self._dump_queue()
             message = networking.build_message(networking.DISCONN, id=self.id)
             self.comm_chan.send_cmd(message, self)
@@ -300,7 +300,7 @@ class DatagramSocket(StreamSocket):
 
     def recvfrom(self, dummy):
         """Receive data from the socket.
-        
+
         The return value is a pair (data, address) where data is data received and
         address is the tuple of (ip, port) of the socket sending the data.
 
@@ -310,7 +310,7 @@ class DatagramSocket(StreamSocket):
         self._become_active_listener()
 
         message = self.queue.get()
-        op, params = networking.parse_message(message) 
+        op, params = networking.parse_message(message)
         if not op == 'RECDFROM':
             if op == 'DISCONN':
                 self.comm_chan.unregister_handler_for_interface(self.id)
@@ -326,4 +326,3 @@ class DatagramSocket(StreamSocket):
         message = networking.build_message(networking.SENDTO, id=self.id, src_port=self.port, dst_ip=address[0], dst_port=address[1], payload=data)
         # print '[ParrotSocket %s] send: %s' % (self.id, message)
         self.comm_chan.send_cmd(message, self)
-
