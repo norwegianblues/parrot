@@ -15,6 +15,14 @@ There will be bridging available between the platform and the physical world, ma
 
 It is important to note that tools for device and service development are not part of the project per se.
 
+Getting started quickly
+-----
+
+1. Clone this repo
+2. Create a virtualenv which you can install parrot in
+3. Run `python setup.py install`
+4. Run one of the example simulations or create your own
+
 Documentation
 -----
 The documentation for this project can be found at <https://github.com/norwegianblues/norwegianblues/wiki>
