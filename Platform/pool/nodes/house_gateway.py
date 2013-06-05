@@ -100,24 +100,21 @@ class house_gateway(Node, threading.Thread):
 class GatewayRequestHandler(ParrotSocketServer.StreamRequestHandler):
     
     def handle(self):
-        try:
-            while True:
-                content = self.rfile.readline().strip().split(' ', 3)
-                
-                # print "from client: received '%s'" % content, 5
-                if content[0] == 'read':
-                    self.wfile.write("ok %s\n" % self.server.house_gateway.relay_get(content[1]))
-                elif content[0] == 'write':
-                    self.server.house_gateway.relay_set(content[1], content[2])
-                    self.wfile.write("ok\n")
-                elif content[0] == 'list':
-                    self.wfile.write("ok ")
-                    for node_type in ['light', 'temp_sensor', 'door']:
-                        for node_nbr in [0, 1, 2]:
-                            self.wfile.write("%s/%d " % (node_type, node_nbr))
-                    self.wfile.write("\n")
-                elif content != "":
-                    self.wfile.write("error unexpected command '%s'\n" % content[0])
-        except:
-            print "D'oh!"
-            pass
+        while True:
+            content = self.rfile.readline().strip().split(' ', 3)
+            
+            # print "from client: received '%s'" % content, 5
+            if content[0] == 'read':
+                self.wfile.write("ok %s\n" % self.server.house_gateway.relay_get(content[1]))
+            elif content[0] == 'write':
+                self.server.house_gateway.relay_set(content[1], content[2])
+                self.wfile.write("ok\n")
+            elif content[0] == 'list':
+                self.wfile.write("ok ")
+                for node_type in ['light', 'temp_sensor', 'door']:
+                    for node_nbr in [0, 1, 2]:
+                        self.wfile.write("%s/%d " % (node_type, node_nbr))
+                self.wfile.write("\n")
+            elif content != "":
+                self.wfile.write("error unexpected command '%s'\n" % content[0])
+
