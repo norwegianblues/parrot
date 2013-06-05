@@ -1,0 +1,143 @@
+{
+    "version":1,
+    "description":
+    "house: demonstrate a house with a set of sensors and actuators.",
+    "nodes":{
+        "urn:hodcp:node:gw":{
+            "config":{
+        "port":2000
+        },
+            "interfaces": {
+                "eth0": {
+                    "ip": "192.168.0.1",
+                    "network": "urn:backplane:subnet:lan"
+                }
+            },
+            "weblink_update": "True",
+            "class": "house_gateway"
+        },
+    "urn:hodcp:node:house_gateway_proxy":{
+            "config":{
+        "server":"192.168.0.1",
+        "port":2000,
+        "proxy_port":2000, 
+        "outbound":false
+        },
+            "interfaces": {
+                "eth0": {
+                    "ip": "192.168.0.221",
+                    "network": "urn:backplane:subnet:lan"
+                }
+            },
+            "class": "tcp_proxy"
+        },
+        "urn:hodcp:node:sw0":{
+            "config":{},
+            "interfaces": {
+                "eth0": {
+                    "ip": "192.168.0.10",
+                    "network": "urn:backplane:subnet:lan"
+                }
+            },
+            "weblink_update": "True",
+            "class": "light_switch"
+        },
+        "urn:hodcp:node:sw1":{
+            "config":{},
+            "interfaces": {
+                "eth0": {
+                    "ip": "192.168.0.11",
+                    "network": "urn:backplane:subnet:lan"
+                }
+            },
+            "weblink_update": "True",
+            "class": "light_switch"
+        },
+        "urn:hodcp:node:sw2":{
+            "config":{},
+            "interfaces": {
+                "eth0": {
+                    "ip": "192.168.0.12",
+                    "network": "urn:backplane:subnet:lan"
+                }
+            },
+            "weblink_update": "True",
+            "class": "light_switch"
+        },
+        "urn:hodcp:node:temp0":{
+            "config":{},
+            "interfaces": {
+                "eth0": {
+                    "ip": "192.168.0.20",
+                    "network": "urn:backplane:subnet:lan"
+                }
+            },
+            "weblink_update": "True",
+            "class": "temp_sensor"
+        },
+        "urn:hodcp:node:temp1":{
+            "config":{},
+            "interfaces": {
+                "eth0": {
+                    "ip": "192.168.0.21",
+                    "network": "urn:backplane:subnet:lan"
+                }
+            },
+            "weblink_update": "True",
+            "class": "temp_sensor"
+        },
+        "urn:hodcp:node:temp2":{
+            "config":{},
+            "interfaces": {
+                "eth0": {
+                    "ip": "192.168.0.22",
+                    "network": "urn:backplane:subnet:lan"
+                }
+            },
+            "weblink_update": "True",
+            "class": "temp_sensor"
+        },
+        "urn:hodcp:node:d0":{
+            "config":{},
+            "interfaces": {
+                "eth0": {
+                    "ip": "192.168.0.30",
+                    "network": "urn:backplane:subnet:lan"
+                }
+            },
+            "weblink_update": "True",
+            "class": "door_sensor"
+        },
+        "urn:hodcp:node:d1":{
+            "config":{},
+            "interfaces": {
+                "eth0": {
+                    "ip": "192.168.0.31",
+                    "network": "urn:backplane:subnet:lan"
+                }
+            },
+            "weblink_update": "True",
+            "class": "door_sensor"
+        },
+        "urn:hodcp:node:d2":{
+            "config":{},
+            "interfaces": {
+                "eth0": {
+                    "ip": "192.168.0.32",
+                    "network": "urn:backplane:subnet:lan"
+                }
+            },
+            "weblink_update": "True",
+            "class": "door_sensor"
+        }
+    },
+    "networks": {
+        "urn:backplane:subnet:lan": {
+            "Delay": "2ms",
+            "IPv4Base": "192.168.0.0",
+            "type": "CSMA",
+            "IPv4Mask": "255.255.255.0",
+            "DataRate": "5Mbps"
+        }
+    }
+}
