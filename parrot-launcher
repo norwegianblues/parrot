@@ -64,13 +64,14 @@ class ParrotRuntime:
     def _launch_parrot_web_server_thread(self, port):
         WEB_ROOT = self._get_root_path() + '/web'  # semi-ugly
         logging.info('Parrot will serve web interface from: %s' % WEB_ROOT)
-        try:
-            os.chdir(WEB_ROOT)
-        except OSError:
-            logging.error('Could not find WEB_ROOT. Web interface not starting.')
-            return
+        #try:
+        #    os.chdir(WEB_ROOT)
+        #except OSError:
+        #    logging.error('Could not find WEB_ROOT. Web interface not starting.')
+        #    return
 
-        handler = SimpleHTTPServer.SimpleHTTPRequestHandler
+        handler = WeblinkRequestHandler
+        handler.web_root = WEB_ROOT
         httpd = SocketServer.TCPServer(("", port), handler)
 
         logging.info('Parrot web server on %d' % port)
@@ -136,6 +137,14 @@ class ParrotRuntime:
 
         simulation_root = self._get_simulation_root()
         sys.path.append(simulation_root)
+
+class WeblinkRequestHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
+
+    def do_GET(self):
+        print "<%s>, <%s>"%(self.web_root, self.path)
+        self.path = self.web_root+"/"+self.path
+        print self.path
+        return SimpleHTTPServer.SimpleHTTPRequestHandler.do_GET(self)
 
 
 def parse_arguments():
