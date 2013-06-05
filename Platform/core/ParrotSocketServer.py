@@ -121,5 +121,6 @@ class ThreadingTCPServer(ThreadingMixIn, TCPServer): pass
 class ThreadingUDPServer(ThreadingMixIn, UDPServer): pass
 
 class BaseRequestHandler(SocketServer.BaseRequestHandler): pass
-class StreamRequestHandler(SocketServer.BaseRequestHandler): pass
-class DatagramRequestHandler(SocketServer.BaseRequestHandler): pass
+class StreamRequestHandler(SocketServer.StreamRequestHandler): pass
+class DatagramRequestHandler(SocketServer.DatagramRequestHandler): pass
+
