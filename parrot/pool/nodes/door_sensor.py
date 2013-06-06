@@ -14,14 +14,14 @@
 #
 ########################################################################
 
-from hodcp import Node
+from parrot.core.node import Node
 
 class door_sensor(Node):
     """Simple door sensor."""
 
     # methods get/set for reading/writing capabilities + thread for socket
     # access over port 1234
-    from accessors import configure, get, set, activate, deactivate, access_socket_main
+    from parrot.core.accessors import configure, get, set, activate, deactivate, access_socket_main
     
     def __init__(self, urn, conn):
         Node.__init__(self, urn, conn)
