@@ -14,12 +14,12 @@
 #
 ########################################################################
 
-from hodcp import Node
+from parrot.core.node import Node
 
 class temp_sensor(Node):
     """Simple temperature sensor."""
     
-    from accessors import configure, get, set, activate, deactivate, access_socket_main
+    from parrot.core.accessors import configure, get, set, activate, deactivate, access_socket_main
     
     def __init__(self, urn, conn):
         Node.__init__(self, urn, conn)

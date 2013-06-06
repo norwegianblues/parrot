@@ -4,9 +4,9 @@
 
 import sys
 import threading
-import hodcp
+from parrot.core.node import Node
 import parrot
-import ParrotSocketServer
+from parrot.core import ParrotSocketServer
 
 class MyUDPHandler(ParrotSocketServer.BaseRequestHandler):
     """
@@ -24,12 +24,12 @@ class MyUDPHandler(ParrotSocketServer.BaseRequestHandler):
         print "echoing"
         socket.sendto(data, self.client_address)
 
-class udp_socketserver(hodcp.Node, threading.Thread):
+class udp_socketserver(Node, threading.Thread):
     
-    from accessors import set, get, configure as default_configure
+    from parrot.core.accessors import set, get, configure as default_configure
     
     def __init__(self, urn, conn):
-        hodcp.Node.__init__(self, urn, conn)
+        Node.__init__(self, urn, conn)
         threading.Thread.__init__(self)
 
     def configure(self, params):
