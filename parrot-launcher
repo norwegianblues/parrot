@@ -81,21 +81,23 @@ class ParrotRuntime:
         t.daemon = True
         t.start()
 
-    def _go_interactive(self):
-        logging.info('Dropping into interactive shell. ' +
-                     'Use simulator.run(configfile) to start simulation.')
+    def _go_interactive(self, simulationfile):
+        logging.info('Dropping into interactive shell. ')
+        logging.info('Use simulator.run("%s") to start simulation.', simulationfile)
+
         try:
             import IPython
             IPython.embed()
         except:
             import code
+            logging.info('Don\'t forget to run: \'from parrot import simulator\' first.')
             code.interact(local=locals())
 
     def _launch_parrot(self, simulationfile, debug=False, interactive=False):
         logging.info('Parrot using configuration: %s' % simulationfile)
 
         if interactive:
-            self._go_interactive()
+            self._go_interactive(simulationfile)
         else:
             if debug:
                 logging.info('Debug mode activated. Dropping to PDB.')
