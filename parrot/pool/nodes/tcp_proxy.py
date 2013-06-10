@@ -51,11 +51,13 @@ class tcp_proxy(node.Node, threading.Thread):
     def run(self):
         if self.outbound:
             proxy = parrot.Socket(self)
-            self.log("Creating outbound proxy")
+            self.log("Creating outbound proxy mapping from %s:%d --> %s:%d" % (
+                self.interfaces["eth0"]["ip"], self.proxy_port, 
+                self.server_ip, self.server_port))
         else:
             proxy = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             proxy.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            self.log("Creating inbound proxy")
+            self.log("Creating inbound proxy mapping from localhost:%d --> %s:%d" % (self.proxy_port, self.server_ip, self.server_port))
         proxy.bind(('', self.proxy_port))
         proxy.listen(5)
 
