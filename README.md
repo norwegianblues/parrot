@@ -9,9 +9,9 @@ The project aims at developing an environment to ease the development, test, and
 
 By context we mean the surroundings or backdrop, i.e. other devices, communication channels, and services, that would be part of the device deployment environment. The difference is that in this platform the context constitutes a well defined and controllable dynamic environment that aids in development, testing and analysis rather than contributing to the hardships of embedded development.
 
-The platform will be able to handle a heterogeneous mix of physical devices, sensors, and actuators, emulated devices, sensors, and actuators, data traffic backplane representing the network, and a number of local or real world services. 
+The platform will be able to handle a heterogeneous mix of physical devices, sensors, and actuators, emulated devices, sensors, and actuators, data traffic backplane representing the network, and a number of local or real world services.
 
-There will be bridging available between the platform and the physical world, making possible to hook up physical devices to the platform as well as connecting the platform to the outside world. 
+There will be bridging available between the platform and the physical world, making possible to hook up physical devices to the platform as well as connecting the platform to the outside world.
 
 It is important to note that tools for device and service development are not part of the project per se.
 
@@ -27,20 +27,26 @@ Documentation
 -----
 The documentation for this project can be found at <https://github.com/norwegianblues/norwegianblues/wiki>
 
-Rules
+Contributions
 -----
-1. Use spaces, not tabs.
-2. Mind if we call you Bruce?
+We welcome contributions of all kinds: comments, tests, documentation, code, feature suggestions. 
+
+1. Fork
+2. Hack (we need tests, so please include them)
+    * use spaces, not tabs
+    * use `nose` for testing
+    * follow PEP8 code style
+3. Submit a pull request
+
+Project structure inspired by https://github.com/kennethreitz/samplemod.
 
 Legal
 -----
 Unless explicitly stated otherwise, the code and the accompanying materials are made available under the terms of the Eclipse Public License v1.0 which accompanies this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
-
 
 Todo
 ----
 As always
 
 * Add documentation
-* Add more modules
 * Add tests and Travis-Ci (or similar) for automatic testing
