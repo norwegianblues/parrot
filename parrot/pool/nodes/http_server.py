@@ -10,8 +10,7 @@ import SimpleHTTPServer
 from parrot.core import ParrotSocketServer
 
 class http_server(node.Node, threading.Thread):
-    ### N.B. HTML-files are served relative to HODCP_ROOT
-    ###      e.g. $HODCP_ROOT/index.html would be served by default.
+    ### N.B. HTML-files are served relative to this file
 
     from parrot.core.accessors import set, get, configure as default_configure
 
@@ -32,7 +31,6 @@ class http_server(node.Node, threading.Thread):
         self.done = True
 
     def run(self):
-
         self.server = ParrotSocketServer.TCPServer(self, ("", self.port),
                                              SimpleHTTPServer.SimpleHTTPRequestHandler)
         self.log("serving at port %d" % self.port)
