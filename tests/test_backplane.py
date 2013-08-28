@@ -113,3 +113,46 @@ def test_connect_success():
     assert sender in nw.mapping.values()
     server_conn_cid = nw.connections[params['id']]
     assert nw.connections[server_conn_cid] == params['id']
+
+
+def test_sendto_without_listener():
+    nw = bp_network.Network("urn:backplane:subnet:sample_network", sample_network_config)
+    sender = mock.MagicMock()
+    sender.properties['ip'] = '10.10.10.10'
+
+    params = {'id': 'client', 'src_port': 65000, 'dst_ip': '10.10.10.10',
+             'dst_port': 65000, 'payload': 'this is a test'}
+    assert nw.sendto(sender, **params)
+
+def test_sendto_with_listener():
+    nw = bp_network.Network("urn:backplane:subnet:sample_network", sample_network_config)
+    sender = mock.MagicMock()
+
+    sender.properties = {}
+    sender.properties['ip'] = '10.10.10.11'
+
+    dst_port = 65000
+    params = {'id': 'client', 'src_port': 65000, 'dst_ip': '10.10.10.10',
+             'dst_port': dst_port, 'payload': 'this is a test'}
+
+    receiver = mock.MagicMock()
+    listener = {'interface': receiver, 'ip': '10.10.10.10', 'port': dst_port}
+    nw.listeners['receiver'] = listener
+
+    assert nw.sendto(sender, **params)
+    assert receiver.send
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
